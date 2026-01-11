@@ -1,3 +1,4 @@
+import axios from "axios";
 import express from "express";
 import bodyParser from "body-parser";
 import dotenv from "dotenv";
@@ -15,13 +16,9 @@ app.post("/api/translate", async (req, res) => {
   }
 
   try {
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-      },
-      body: JSON.stringify({
+    const response = await axios.post(
+      "https://api.openai.com/v1/chat/completions",
+      {
         model: "gpt-4-turbo",
         messages: [
           {
@@ -31,14 +28,24 @@ app.post("/api/translate", async (req, res) => {
           { role: "user", content: text },
         ],
         temperature: 0.3,
-      }),
-    });
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+        },
+      }
+    );
 
-    const data = await response.json();
-    const translatedText = data.choices[0].message.content.trim();
-    res.status(200).json({ translatedText });
+    const choice = response.data?.choices?.[0]?.message?.content;
+
+    if (!choice) {
+      throw new Error("No translation returned from OpenAI.");
+    }
+
+    res.status(200).json({ translatedText: choice.trim() });
   } catch (error) {
-    console.error("Translation error:", error);
+    console.error("Translation error:", error.response?.data || error.message);
     res.status(500).json({ error: "Failed to translate text." });
   }
 });
