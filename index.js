@@ -1,3 +1,14 @@
+app.get("/", (req, res) => {
+  res.send(`
+    <html>
+      <head><title>Casqit Translator</title></head>
+      <body>
+        <h1>Casqit Translator</h1>
+        <p>App is actief.</p>
+      </body>
+    </html>
+  `);
+});
 import axios from "axios";
 import express from "express";
 import bodyParser from "body-parser";
@@ -53,4 +64,7 @@ app.post("/api/translate", async (req, res) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+});
+app.get("/", (req, res) => {
+  res.send("Casqit Translate API is running");
 });
